@@ -13,253 +13,310 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            /* Center content for the password gate */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .container {
+        .app-container {
             max-width: 900px;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-6 sm:p-8">
 
-<div class="container mx-auto p-6 bg-gray-800 rounded-2xl shadow-2xl">
-    <h1 class="text-3xl font-bold text-center text-white mb-2">Rogers Wireless Message Generator</h1>
-    <p class="text-center text-gray-400 mb-8">Generate the confirmation message for new wireless activations.</p>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Input Block -->
-        <div class="lg:col-span-1 bg-gray-700 p-6 rounded-xl shadow-inner h-full">
-            <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">User Details</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="customerName" class="block text-sm font-medium text-gray-300 mb-1">Customer Name</label>
-                    <input type="text" id="customerName" placeholder="e.g., Jane Doe" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="repName" class="block text-sm font-medium text-gray-300 mb-1">Rep Name</label>
-                    <input type="text" id="repName" placeholder="e.g., Alex" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="rciEmail" class="block text-sm font-medium text-gray-300 mb-1">RCI Email Address</label>
-                    <input type="email" id="rciEmail" placeholder="e.g., alex.rci@rogers.com" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="price" class="block text-sm font-medium text-gray-300 mb-1">Monthly Billing (Before Tax)</label>
-                    <input type="number" id="price" placeholder="e.g., 110" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-        </div>
-
-        <!-- Line Configuration Block -->
-        <div class="lg:col-span-2 bg-gray-700 p-6 rounded-xl shadow-inner">
-            <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">Lines Activated (<span id="lineCount">1</span>)</h2>
-            <div id="linesContainer" class="space-y-4">
-                <!-- Dynamic Lines will be rendered here -->
-            </div>
-            
-            <div class="mt-6 flex justify-between gap-4">
-                <button id="addLineBtn" class="w-full md:w-auto flex-grow bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    + Add Additional Line
-                </button>
-                <button id="removeLineBtn" class="w-full md:w-auto flex-grow bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50" disabled>
-                    - Remove Last Line
-                </button>
-            </div>
-        </div>
-    </div>
+<!-- Password Gate Block -->
+<div id="password-gate" class="mx-auto w-full max-w-md p-8 bg-gray-800 rounded-2xl shadow-2xl transition-all duration-500">
+    <h1 class="text-3xl font-bold text-center text-white mb-6">Access Required</h1>
+    <p class="text-center text-gray-400 mb-6">Please enter the access code to view the generator.</p>
     
-    <!-- Actions -->
-    <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-        <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">Generate Confirmation Message</button>
-        <button id="copyBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">Copy to Clipboard</button>
+    <div class="space-y-4">
+        <!-- Input field listens for Enter keypress to trigger login -->
+        <input type="password" id="passwordInput" placeholder="Enter password..." 
+               class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+               onkeydown="if(event.key === 'Enter') document.getElementById('loginButton').click()">
+        
+        <p id="error-message" class="text-red-400 text-sm hidden">Incorrect password. Please try again.</p>
+        
+        <button id="loginButton" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+            Access Generator
+        </button>
     </div>
+</div>
 
-    <!-- Output Textarea -->
-    <div class="mb-4">
-        <label for="messageOutput" class="block text-sm font-medium text-gray-300 mb-1">Generated Message</label>
-        <textarea id="messageOutput" rows="15" class="w-full p-4 rounded-lg bg-gray-700 border border-gray-500 text-white resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Your generated message will appear here..."></textarea>
-    </div>
+<!-- Main Application Content (Initially Hidden via class="hidden") -->
+<div id="app-content" class="app-container hidden w-full">
+    <div class="p-6 bg-gray-800 rounded-2xl shadow-2xl">
+        <h1 class="text-3xl font-bold text-center text-white mb-2">Rogers Wireless Message Generator</h1>
+        <p class="text-center text-gray-400 mb-8">Generate the confirmation message for new wireless activations.</p>
 
-    <!-- Notification Message -->
-    <div id="notification" class="hidden text-center text-sm mt-4 p-3 rounded-lg bg-green-500 text-white transition-opacity duration-300 font-medium">
-        Message copied to clipboard!
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Input Block -->
+            <div class="lg:col-span-1 bg-gray-700 p-6 rounded-xl shadow-inner h-full">
+                <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">User Details</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="customerName" class="block text-sm font-medium text-gray-300 mb-1">Customer Name</label>
+                        <input type="text" id="customerName" placeholder="e.g., Jane Doe" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="repName" class="block text-sm font-medium text-gray-300 mb-1">Rep Name</label>
+                        <input type="text" id="repName" placeholder="e.g., Alex" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="rciEmail" class="block text-sm font-medium text-gray-300 mb-1">RCI Email Address</label>
+                        <input type="email" id="rciEmail" placeholder="e.g., alex.rci@rogers.com" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-300 mb-1">Monthly Billing (Before Tax)</label>
+                        <input type="number" id="price" placeholder="e.g., 110" class="w-full p-3 rounded-lg bg-gray-600 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Configuration Block -->
+            <div class="lg:col-span-2 bg-gray-700 p-6 rounded-xl shadow-inner">
+                <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">Lines Activated (<span id="lineCount">1</span>)</h2>
+                <div id="linesContainer" class="space-y-4">
+                    <!-- Dynamic Lines will be rendered here -->
+                </div>
+                
+                <div class="mt-6 flex justify-between gap-4">
+                    <button id="addLineBtn" class="w-full md:w-auto flex-grow bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        + Add Additional Line
+                    </button>
+                    <button id="removeLineBtn" class="w-full md:w-auto flex-grow bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50" disabled>
+                        - Remove Last Line
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+            <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">Generate Confirmation Message</button>
+            <button id="copyBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">Copy to Clipboard</button>
+        </div>
+
+        <!-- Output Textarea -->
+        <div class="mb-4">
+            <label for="messageOutput" class="block text-sm font-medium text-gray-300 mb-1">Generated Message</label>
+            <textarea id="messageOutput" rows="15" class="w-full p-4 rounded-lg bg-gray-700 border border-gray-500 text-white resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Your generated message will appear here..."></textarea>
+        </div>
+
+        <!-- Notification Message -->
+        <div id="notification" class="hidden text-center text-sm mt-4 p-3 rounded-lg bg-green-500 text-white transition-opacity duration-300 font-medium">
+            Message copied to clipboard!
+        </div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const linesContainer = document.getElementById('linesContainer');
-        const lineCountSpan = document.getElementById('lineCount');
-        const addLineBtn = document.getElementById('addLineBtn');
-        const removeLineBtn = document.getElementById('removeLineBtn');
-        const generateBtn = document.getElementById('generateBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const messageOutput = document.getElementById('messageOutput');
-        const notification = document.getElementById('notification');
+        // --- Password Gate Setup ---
+        const CORRECT_PASSWORD = "unnuisthebest"; // The password requested by the user
+        const passwordGate = document.getElementById('password-gate');
+        const appContent = document.getElementById('app-content');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginButton = document.getElementById('loginButton');
+        const errorMessage = document.getElementById('error-message');
 
-        const PLAN_OPTIONS = ["Talk & Text", "5G+ Essentials", "5G+ Popular", "5G+ Ultimate"];
-
-        let lines = [
-            { id: 1, label: 'Primary Line', plan: '5G+ Essentials', isCrossSell: false }
-        ];
-
-        // --- Utility Functions ---
-
-        function getLineLabel(index) {
-            if (index === 0) return 'Primary Line';
-            if (index === 1) return 'Additional Line 2';
-            if (index === 2) return 'Additional Line 3';
-            return 'Additional Line 4+';
+        function showApp() {
+            passwordGate.classList.add('hidden');
+            appContent.classList.remove('hidden');
+            // Re-initialize main app logic once visible
+            initializeApp();
         }
 
-        function getPlanName(plan) {
-            // Extracts the main plan name for display in the final message
-            if (plan.includes("Talk & Text")) return "Talk & Text";
-            return plan.split(' ')[0] + ' ' + plan.split(' ')[1]; // "5G+ Essentials" -> "5G+ Essentials"
+        function attemptLogin() {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                showApp();
+            } else {
+                errorMessage.classList.remove('hidden');
+                passwordInput.value = ''; // Clear input on failure
+                setTimeout(() => errorMessage.classList.add('hidden'), 3000);
+            }
         }
 
-        // --- Core Rendering & State Management ---
+        loginButton.addEventListener('click', attemptLogin);
 
-        function updateUI() {
-            renderLines();
-            updateLineControls();
-            generateMessage();
-        }
+        // --- Main Application Logic (moved inside an initialization function) ---
+        function initializeApp() {
+            const linesContainer = document.getElementById('linesContainer');
+            const lineCountSpan = document.getElementById('lineCount');
+            const addLineBtn = document.getElementById('addLineBtn');
+            const removeLineBtn = document.getElementById('removeLineBtn');
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const messageOutput = document.getElementById('messageOutput');
+            const notification = document.getElementById('notification');
 
-        function renderLines() {
-            linesContainer.innerHTML = lines.map((line, index) => {
-                const lineLabel = getLineLabel(index);
-                const isPrimary = index === 0;
+            const PLAN_OPTIONS = ["Talk & Text", "5G+ Essentials", "5G+ Popular", "5G+ Ultimate"];
 
-                const crossSellHtml = isPrimary ? `
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="crossSell-${line.id}" data-id="${line.id}" 
-                            class="h-5 w-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
-                            ${line.isCrossSell ? 'checked' : ''}
-                            onchange="window.handlePlanChange(event)">
-                        <label for="crossSell-${line.id}" class="text-sm font-medium text-gray-300">Cross-Sell</label>
-                    </div>
-                ` : '';
+            let lines = [
+                { id: 1, label: 'Primary Line', plan: '5G+ Essentials', isCrossSell: false }
+            ];
 
-                const linePlanOptions = PLAN_OPTIONS.map(opt => `
-                    <option value="${opt}" ${line.plan === opt ? 'selected' : ''}>${opt}</option>
-                `).join('');
+            // --- Utility Functions ---
 
-                return `
-                    <div class="p-4 bg-gray-600 rounded-lg border border-gray-500">
-                        <h3 class="text-lg font-medium text-white mb-3">${lineLabel}</h3>
-                        <div class="flex flex-col sm:flex-row gap-4 items-center">
-                            <div class="flex-1 w-full">
-                                <label for="plan-${line.id}" class="block text-xs font-medium text-gray-400 mb-1">Wireless Plan</label>
-                                <select id="plan-${line.id}" data-id="${line.id}" 
-                                    class="w-full p-2 rounded-lg bg-gray-700 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    onchange="window.handlePlanChange(event)">
-                                    ${linePlanOptions}
-                                </select>
-                            </div>
-                            ${crossSellHtml}
+            function getLineLabel(index) {
+                if (index === 0) return 'Primary Line';
+                if (index === 1) return 'Additional Line 2';
+                if (index === 2) return 'Additional Line 3';
+                return 'Additional Line 4+';
+            }
+
+            function getPlanName(plan) {
+                // Extracts the main plan name for display in the final message
+                if (plan.includes("Talk & Text")) return "Talk & Text";
+                return plan.split(' ')[0] + ' ' + plan.split(' ')[1]; // "5G+ Essentials" -> "5G+ Essentials"
+            }
+
+            // --- Core Rendering & State Management ---
+
+            function updateUI() {
+                renderLines();
+                updateLineControls();
+                generateMessage();
+            }
+
+            function renderLines() {
+                linesContainer.innerHTML = lines.map((line, index) => {
+                    const lineLabel = getLineLabel(index);
+                    const isPrimary = index === 0;
+
+                    const crossSellHtml = isPrimary ? `
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="crossSell-${line.id}" data-id="${line.id}" 
+                                class="h-5 w-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                                ${line.isCrossSell ? 'checked' : ''}
+                                onchange="window.handlePlanChange(event)">
+                            <label for="crossSell-${line.id}" class="text-sm font-medium text-gray-300">Cross-Sell</label>
                         </div>
-                    </div>
-                `;
-            }).join('');
-            
-            lineCountSpan.textContent = lines.length;
-        }
+                    ` : '';
 
-        function updateLineControls() {
-            removeLineBtn.disabled = lines.length <= 1;
-        }
-        
-        // Expose to window for inline onchange handlers
-        window.handlePlanChange = (event) => {
-            const id = parseInt(event.target.getAttribute('data-id'));
-            const lineIndex = lines.findIndex(l => l.id === id);
-            
-            if (lineIndex === -1) return;
+                    const linePlanOptions = PLAN_OPTIONS.map(opt => `
+                        <option value="${opt}" ${line.plan === opt ? 'selected' : ''}>${opt}</option>
+                    `).join('');
 
-            if (event.target.id.startsWith('plan-')) {
-                lines[lineIndex].plan = event.target.value;
-            } else if (event.target.id.startsWith('crossSell-')) {
-                lines[lineIndex].isCrossSell = event.target.checked;
+                    return `
+                        <div class="p-4 bg-gray-600 rounded-lg border border-gray-500">
+                            <h3 class="text-lg font-medium text-white mb-3">${lineLabel}</h3>
+                            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                                <div class="flex-1 w-full">
+                                    <label for="plan-${line.id}" class="block text-xs font-medium text-gray-400 mb-1">Wireless Plan</label>
+                                    <select id="plan-${line.id}" data-id="${line.id}" 
+                                        class="w-full p-2 rounded-lg bg-gray-700 border border-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        onchange="window.handlePlanChange(event)">
+                                        ${linePlanOptions}
+                                    </select>
+                                </div>
+                                ${crossSellHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                lineCountSpan.textContent = lines.length;
             }
 
-            // Re-render and generate message
-            updateUI();
-        };
-
-        // --- Action Handlers ---
-
-        addLineBtn.addEventListener('click', () => {
-            const newLineId = lines.length > 0 ? Math.max(...lines.map(l => l.id)) + 1 : 1;
-            const newIndex = lines.length;
+            function updateLineControls() {
+                removeLineBtn.disabled = lines.length <= 1;
+            }
             
-            // Default plan for new lines
-            let defaultPlan = '5G+ Essentials';
+            // Expose to window for inline onchange handlers
+            window.handlePlanChange = (event) => {
+                const id = parseInt(event.target.getAttribute('data-id'));
+                const lineIndex = lines.findIndex(l => l.id === id);
+                
+                if (lineIndex === -1) return;
 
-            lines.push({ 
-                id: newLineId, 
-                label: getLineLabel(newIndex),
-                plan: defaultPlan, 
-                isCrossSell: false 
-            });
-            updateUI();
-        });
+                if (event.target.id.startsWith('plan-')) {
+                    lines[lineIndex].plan = event.target.value;
+                } else if (event.target.id.startsWith('crossSell-')) {
+                    lines[lineIndex].isCrossSell = event.target.checked;
+                }
 
-        removeLineBtn.addEventListener('click', () => {
-            if (lines.length > 1) {
-                lines.pop();
+                // Re-render and generate message
                 updateUI();
-            }
-        });
-        
-        generateBtn.addEventListener('click', generateMessage);
+            };
 
-        function generateMessage() {
-            // Get user inputs
-            const customerName = document.getElementById('customerName').value || '[Customer Name]';
-            const repName = document.getElementById('repName').value || '[Rep Name]';
-            const rciEmail = document.getElementById('rciEmail').value || '[RCI email address]';
-            let price = document.getElementById('price').value;
+            // --- Action Handlers ---
+
+            addLineBtn.addEventListener('click', () => {
+                const newLineId = lines.length > 0 ? Math.max(...lines.map(l => l.id)) + 1 : 1;
+                const newIndex = lines.length;
+                
+                // Default plan for new lines
+                let defaultPlan = '5G+ Essentials';
+
+                lines.push({ 
+                    id: newLineId, 
+                    label: getLineLabel(newIndex),
+                    plan: defaultPlan, 
+                    isCrossSell: false 
+                });
+                updateUI();
+            });
+
+            removeLineBtn.addEventListener('click', () => {
+                if (lines.length > 1) {
+                    lines.pop();
+                    updateUI();
+                }
+            });
             
-            // Format price
-            let formattedPrice;
-            if (price) {
-                 // Ensure price is treated as a number and formatted correctly
-                price = parseFloat(price);
-                if (!isNaN(price)) {
-                    formattedPrice = `$${price.toFixed(2)}`;
+            generateBtn.addEventListener('click', generateMessage);
+
+            function generateMessage() {
+                // Get user inputs
+                const customerName = document.getElementById('customerName').value || '[Customer Name]';
+                const repName = document.getElementById('repName').value || '[Rep Name]';
+                const rciEmail = document.getElementById('rciEmail').value || '[RCI email address]';
+                let price = document.getElementById('price').value;
+                
+                // Format price
+                let formattedPrice;
+                if (price) {
+                    // Ensure price is treated as a number and formatted correctly
+                    price = parseFloat(price);
+                    if (!isNaN(price)) {
+                        formattedPrice = `$${price.toFixed(2)}`;
+                    } else {
+                        formattedPrice = '$[Total Price]';
+                    }
                 } else {
                     formattedPrice = '$[Total Price]';
                 }
-            } else {
-                formattedPrice = '$[Total Price]';
-            }
-            
-            // Calculate total lines
-            const lineCount = lines.length;
+                
+                // Calculate total lines
+                const lineCount = lines.length;
 
-            // --- MODIFIED LOGIC: Create a detailed list of plans, ordered by line ---
-            const detailedPlanList = lines.map((line, index) => {
-                // getLineLabel utility function already exists and returns 'Primary Line', 'Additional Line 2', etc.
-                const lineLabel = getLineLabel(index);
-                return `${lineLabel}: ${line.plan}`;
-            }).join('\n');
-            
-            let planDetail = detailedPlanList;
-            // --- END MODIFIED LOGIC ---
-            
-            // Check for cross-sell (only on primary line for the SSF message variant)
-            const isCrossSell = lines[0]?.isCrossSell || false;
+                // --- MODIFIED LOGIC: Create a detailed list of plans, ordered by line ---
+                const detailedPlanList = lines.map((line, index) => {
+                    // getLineLabel utility function already exists and returns 'Primary Line', 'Additional Line 2', etc.
+                    const lineLabel = getLineLabel(index);
+                    return `${lineLabel}: ${line.plan}`;
+                }).join('\n');
+                
+                let planDetail = detailedPlanList;
+                // --- END MODIFIED LOGIC ---
+                
+                // Check for cross-sell (only on primary line for the SSF message variant)
+                const isCrossSell = lines[0]?.isCrossSell || false;
 
-            // Determine SSF credit messaging
-            let ssfDetail;
-            if (isCrossSell) {
-                ssfDetail = `Setup Service Fee: $80 SSF per line applied to first bill. **SSF will be credited back to the account.**`;
-            } else {
-                 ssfDetail = `Setup Service Fee: $80 SSF per line applied to first bill. (No credit applies)`;
-            }
+                // Determine SSF credit messaging
+                let ssfDetail;
+                if (isCrossSell) {
+                    ssfDetail = `Setup Service Fee: $80 SSF per line applied to first bill. **SSF will be credited back to the account.**`;
+                } else {
+                    ssfDetail = `Setup Service Fee: $80 SSF per line applied to first bill. (No credit applies)`;
+                }
 
-            // Construct the full message using the template, now using 'Plans:' header
-            const message = `Hi ${customerName},
+                // Construct the full message using the template, now using 'Plans:' header
+                const message = `Hi ${customerName},
 
 This is ${repName} from Rogers. Thank you for choosing Rogers. We just signed you up for the following services:
 
@@ -277,32 +334,37 @@ Thank you for choosing Rogers,
 ${repName}
 ${rciEmail}`;
 
-            messageOutput.value = message.trim();
+                messageOutput.value = message.trim();
+            }
+
+            function copyMessage() {
+                messageOutput.select();
+                // Use document.execCommand('copy') for compatibility in iFrames
+                document.execCommand('copy'); 
+                
+                notification.textContent = 'Message copied to clipboard!';
+                notification.classList.remove('hidden', 'opacity-0');
+                notification.classList.add('opacity-100');
+                setTimeout(() => {
+                    notification.classList.remove('opacity-100');
+                    notification.classList.add('opacity-0');
+                    setTimeout(() => notification.classList.add('hidden'), 300);
+                }, 2000);
+            }
+
+            copyBtn.addEventListener('click', copyMessage);
+
+            // Listen for changes on the main text inputs to trigger a regeneration
+            ['customerName', 'repName', 'rciEmail', 'price'].forEach(id => {
+                document.getElementById(id).addEventListener('input', generateMessage);
+            });
+
+            // Initialize the UI on app load
+            updateUI();
         }
 
-        function copyMessage() {
-            messageOutput.select();
-            document.execCommand('copy');
-            
-            notification.textContent = 'Message copied to clipboard!';
-            notification.classList.remove('hidden', 'opacity-0');
-            notification.classList.add('opacity-100');
-            setTimeout(() => {
-                notification.classList.remove('opacity-100');
-                notification.classList.add('opacity-0');
-                setTimeout(() => notification.classList.add('hidden'), 300);
-            }, 2000);
-        }
-
-        copyBtn.addEventListener('click', copyMessage);
-
-        // Listen for changes on the main text inputs to trigger a regeneration
-        ['customerName', 'repName', 'rciEmail', 'price'].forEach(id => {
-            document.getElementById(id).addEventListener('input', generateMessage);
-        });
-
-        // Initialize the UI
-        updateUI();
+        // On initial load, the password gate is visible and the app content is hidden.
+        // App logic is only executed upon successful login.
     });
 </script>
 
